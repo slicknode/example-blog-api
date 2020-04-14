@@ -1,0 +1,55 @@
+"""
+A blog article
+"""
+type Blog_Article implements Node & TimeStampedInterface {
+    id: ID!
+    """
+    The title of the blog article
+    """
+    title: String!
+    """
+    A unique slug for SEO-Optimized URLs
+    """
+    slug: String! @unique
+    """
+    The main image of the article
+    """
+    image: Image
+    text: String! @input(type: MARKDOWN)
+    author: User!
+    category: Blog_Category
+    createdAt: DateTime!
+    lastUpdatedAt: DateTime
+    comments: [Blog_Comment!] @relation(path: "Blog_Article=article.Blog_Comment")
+}
+
+type Blog_Category implements Node {
+  id: ID!
+  name: String!
+  slug: String! @unique
+  articles: [Blog_Article!]! @relation(path: "Blog_Category=category.Blog_Article")
+}
+
+"""
+Comments for blog articles
+"""
+type Blog_Comment implements Node & TimeStampedInterface {
+    id: ID!
+    text: String! @input(type: TEXTAREA)
+    """
+    The author of the comment
+    """
+    author: User
+    article: Blog_Article!
+    createdAt: DateTime!
+    lastUpdatedAt: DateTime
+}
+
+extend type User {
+  Blog_articles: [Blog_Article!]! @relation(
+    path: "User=author.Blog_Article"
+  )
+  Blog_comments: [Blog_Comment!]! @relation(
+    path: "User=author.Blog_Comment"
+  )
+}
